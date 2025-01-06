@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import Header from "./Header";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { checkFormValidation } from "../utils/validate";
 import {
@@ -10,10 +10,10 @@ import {
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
 import { addUser } from "../utils/userSlice";
+import { BACK, PHOTO } from "../utils/constants";
 
 const Login = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const [isSignIn, setIsSignIn] = useState(true);
     const [isMessage, setIsMessage] = useState(null);
 
@@ -43,8 +43,7 @@ const Login = () => {
                     const user = userCredential.user;
                     updateProfile(user, {
                         displayName: name.current.value,
-                        photoURL:
-                            "https://avatars.githubusercontent.com/u/184251894?v=4&size=64",
+                        photoURL: { PHOTO },
                     })
                         .then(() => {
                             const { uid, email, displayName, photoURL } =
@@ -57,7 +56,6 @@ const Login = () => {
                                     photoURL,
                                 })
                             );
-                            navigate("/browse");
                         })
                         .catch((error) => {
                             const errorMessage = error.message;
@@ -77,7 +75,6 @@ const Login = () => {
             )
                 .then((userCredential) => {
                     const user = userCredential.user;
-                    navigate("/browse");
                 })
                 .catch((error) => {
                     const errorCode = error.code;
@@ -91,11 +88,7 @@ const Login = () => {
         <div>
             <Header />
             <div>
-                <img
-                    src="https://assets.nflxext.com/ffe/siteui/vlv3/2f5a878d-bbce-451b-836a-398227a34fbf/web/IN-en-20241230-TRIFECTA-perspective_5ab944a5-1a71-4f6d-b341-8699d0491edd_small.jpg"
-                    alt="background"
-                    className="absolute"
-                />
+                <img src={BACK} alt="background" className="absolute" />
                 <div className="absolute inset-0 bg-black bg-opacity-50"></div>
             </div>
             <form
