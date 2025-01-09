@@ -1,19 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signOut } from "firebase/auth";
 import { auth } from "../utils/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { addUser, removeUser } from "../utils/userSlice";
-import { LOGO, SUPPORTED_LANGUAGES } from "../utils/constants";
-import { addToggleSearch } from "../utils/gptSlice";
-import { changeLanguage } from "../utils/configSlice";
+import { LOGO } from "../utils/constants";
 
 const Header = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const user = useSelector((store) => store.user);
-    const showGPTSearch = useSelector((store) => store.gpt.toggleSearch);
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+    const handleMouseEnter = () => {
+        setIsDropdownVisible(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsDropdownVisible(false);
+    };
+
     const handleSignout = () => {
         signOut(auth)
             .then(() => {
@@ -22,15 +29,6 @@ const Header = () => {
             .catch((error) => {
                 navigate("/error");
             });
-    };
-
-    const handleToggle = () => {
-        dispatch(addToggleSearch());
-    };
-
-    const handleLanguageChange = (e) => {
-        console.log(e.target.value);
-        dispatch(changeLanguage(e.target.value));
     };
 
     useEffect(() => {
@@ -55,38 +53,29 @@ const Header = () => {
     }, []);
 
     return (
-        <div className="flex justify-between absolute w-screen  px-8 py-2 bg-gradient-to-b from-black z-10 ">
+        <div className="flex justify-between absolute w-screen  px-8 py-2 bg-gradient-to-b from-black z-10  ">
             <img src={LOGO} alt="netflix logo" className="w-44" />
             {user && (
-                <div className="flex p-2">
-                    {showGPTSearch && (
-                        <select
-                            className="p-2 m-2 bg-gray-900 text-white flex rounded"
-                            onChange={handleLanguageChange}>
-                            {SUPPORTED_LANGUAGES.map((lang) => (
-                                <option
-                                    key={lang.identifier}
-                                    value={lang.identifier}>
-                                    {lang.name}
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                    <button
-                        className="py-2 px-4 mx-4 my-2 bg-purple-800 text-white rounded-lg"
-                        onClick={handleToggle}>
-                        {showGPTSearch ? "Homepage" : "GPTSearch"}
-                    </button>
+                <div
+                    className="relative inline-block mt-3"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}>
                     <img
-                        className="w-12 h-12 rounded"
+                        className="w-12 h-12 rounded cursor-pointer"
                         src={user.photoURL}
                         alt="user icon"
                     />
-                    <button
-                        onClick={handleSignout}
-                        className="font-bold text-white">
-                        Sign out
-                    </button>
+                    {isDropdownVisible && (
+                        <div className="absolute right-0 mt-2 bg-gray-800 text-white rounded-lg shadow-lg w-48">
+                            <ul className="p-2">
+                                <li
+                                    className="p-2 hover:bg-gray-700 rounded-md cursor-pointer"
+                                    onClick={handleSignout}>
+                                    Sign Out
+                                </li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
